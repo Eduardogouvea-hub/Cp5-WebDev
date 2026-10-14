@@ -97,6 +97,7 @@ export default function Carrinho({ carrinho, produtos, clienteAtual, onAdicionar
             <span>Total</span>
             <span>{formatarPreco(totalComDesconto)}</span>
           </p>
+          {totalComDesconto >= 200 && <span className="selo selo-frete">Frete grátis</span>}
         </aside>
       </div>
 

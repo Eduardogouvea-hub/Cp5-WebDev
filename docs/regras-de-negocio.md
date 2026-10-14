@@ -4,7 +4,7 @@
 
 ## Frete grátis
 
-Produtos com preço acima de R$ 100 têm frete grátis e exibem o selo "Frete grátis".
+Compras com preço acima de R$ 200 têm frete grátis.
 
 ## Cupons
 

@@ -1,8 +1,11 @@
+import { useState } from 'react'
 import { Link, useParams } from 'react-router'
 
-export default function PaginaProduto({ produtos, onAdicionar }) {
+export default function PaginaProduto({ produtos, onAdicionar, onAdicionarEspera }) {
   const { id } = useParams()
-  const produto = produtos.find((item) => item.id === id)
+  const [formulario, setFormulario] = useState({ nome: '', email: '' })
+  const [mensagemEspera, setMensagemEspera] = useState('')
+  const produto = produtos.find((item) => String(item.id) === String(id))
 
   if (!produto) {
     return (
@@ -15,8 +18,28 @@ export default function PaginaProduto({ produtos, onAdicionar }) {
     )
   }
 
+  const preco = Number(produto.price ?? 0)
+
+  function handleSubmitListaEspera(evento) {
+    evento.preventDefault()
+
+    if (!formulario.nome.trim() || !formulario.email.trim()) {
+      setMensagemEspera('Preencha nome e e-mail para entrar na lista de espera.')
+      return
+    }
+
+    onAdicionarEspera(produto, formulario)
+    setMensagemEspera(`Cadastrado com sucesso. Você vai receber um aviso quando ${produto.title} voltar.`)
+    setFormulario({ nome: '', email: '' })
+  }
+
   const relacionados = produtos
-    .filter((item) => item.category === produto.category && item.id !== produto.id)
+    .filter(
+      (item) =>
+        Number(item.estoque) > 0 &&
+        String(item.category) === String(produto.category) &&
+        String(item.id) !== String(produto.id)
+    )
     .slice(0, 4)
 
   return (
@@ -37,17 +60,56 @@ export default function PaginaProduto({ produtos, onAdicionar }) {
           <p className="card-avaliacao">
             ★ {produto.rating.rate} <span>({produto.rating.count} avaliações)</span>
           </p>
-          <p className="detalhe-preco">R$ {produto.price.toFixed(2).replace('.', ',')}</p>
+          <p className="detalhe-preco">R$ {preco.toFixed(2).replace('.', ',')}</p>
           <p className="detalhe-descricao">{produto.description}</p>
           <p className="detalhe-estoque">{produto.estoque} unidades disponíveis</p>
 
-          <button
-            className="botao botao-grande"
-            onClick={() => onAdicionar(produto)}
-            disabled={produto.estoque === 0}
-          >
-            Adicionar ao carrinho
-          </button>
+          {produto.estoque === 0 && (
+            <form className="lista-espera" onSubmit={handleSubmitListaEspera}>
+              <h2>Produto esgotado</h2>
+              <p>Avise-me quando voltar</p>
+
+              <label className="campo">
+                <span>Nome</span>
+                <input
+                  type="text"
+                  value={formulario.nome}
+                  onChange={(evento) =>
+                    setFormulario((atual) => ({ ...atual, nome: evento.target.value }))
+                  }
+                  placeholder="Seu nome"
+                />
+              </label>
+
+              <label className="campo">
+                <span>E-mail</span>
+                <input
+                  type="email"
+                  value={formulario.email}
+                  onChange={(evento) =>
+                    setFormulario((atual) => ({ ...atual, email: evento.target.value }))
+                  }
+                  placeholder="seu@email.com"
+                />
+              </label>
+
+              <button type="submit" className="botao botao-secundario">
+                Quero receber o aviso
+              </button>
+
+              {mensagemEspera && <p className="mensagem-cupom">{mensagemEspera}</p>}
+            </form>
+          )}
+
+          {produto.estoque > 0 && (
+            <button
+              className="botao botao-grande"
+              onClick={() => onAdicionar(produto)}
+              disabled={produto.estoque === 0}
+            >
+              Adicionar ao carrinho
+            </button>
+          )}
 
           <ul className="detalhe-garantias">
             <li>Troca grátis em até 30 dias</li>
@@ -66,8 +128,8 @@ export default function PaginaProduto({ produtos, onAdicionar }) {
               </div>
               <h3 className="card-titulo">{item.title}</h3>
             </Link>
-            <p className="preco">R$ {Number(item.price).toFixed(2).replace('.', ',')}</p>
-            <button className="botao" onClick={() => onAdicionar(item)}>
+            <p className="preco">R$ {Number(item.price ?? 0).toFixed(2).replace('.', ',')}</p>
+            <button className="botao" onClick={() => onAdicionar(item)} disabled={Number(item.estoque) === 0}>
               Adicionar ao carrinho
             </button>
           </article>

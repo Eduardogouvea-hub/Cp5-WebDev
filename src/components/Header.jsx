@@ -1,6 +1,8 @@
 import { Link, NavLink } from 'react-router'
 
-export default function Header({ clienteAtual }) {
+export default function Header({ clienteAtual, carrinho = [] }) {
+  const quantidadeItens = carrinho.length
+
   return (
     <header className="header">
       <p className="faixa-aviso">Troca grátis em até 30 dias · Parcele em até 10x sem juros</p>
@@ -26,13 +28,23 @@ export default function Header({ clienteAtual }) {
             </p>
           )}
 
-          <Link to="/carrinho" className="mini-carrinho">
-            <svg className="mini-carrinho-icone" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M6 7h13l-1.5 8.5a2 2 0 0 1-2 1.5H9.5a2 2 0 0 1-2-1.6L5.6 4H3" />
-              <circle cx="10" cy="20.5" r="1.2" />
-              <circle cx="17" cy="20.5" r="1.2" />
-            </svg>
-            <span className="mini-carrinho-texto">Carrinho</span>
+          <Link
+            to="/carrinho"
+            className="mini-carrinho"
+            title={`${quantidadeItens} produto${quantidadeItens === 1 ? '' : 's'} no carrinho`}
+          >
+            <span className="mini-carrinho-wrap">
+              <svg className="mini-carrinho-icone" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M6 7h13l-1.5 8.5a2 2 0 0 1-2 1.5H9.5a2 2 0 0 1-2-1.6L5.6 4H3" />
+                <circle cx="10" cy="20.5" r="1.2" />
+                <circle cx="17" cy="20.5" r="1.2" />
+              </svg>
+              {quantidadeItens > 0 && <span className="mini-carrinho-badge">{quantidadeItens}</span>}
+            </span>
+            <span className="mini-carrinho-texto">
+              Carrinho
+              <small>{quantidadeItens} item{quantidadeItens === 1 ? '' : 's'}</small>
+            </span>
           </Link>
         </div>
       </div>
